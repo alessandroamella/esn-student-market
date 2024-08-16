@@ -1,20 +1,31 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
+import crypto from 'node:crypto';
+import { TelegramDataDto } from './dto/telegram-data.dto';
+import { AuthTokenSignedDto } from './dto/auth-token-signed.dto';
+import { UserService } from 'user/user.service';
+import { AuthPayloadDto } from './dto/auth-payload.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   private botToken: string;
 
   constructor(
-    private configService: ConfigService,
     private jwtService: JwtService,
+    private userService: UserService,
+    private config: ConfigService,
   ) {
-    this.botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    this.botToken = this.config.get<string>('TELEGRAM_BOT_TOKEN');
   }
 
-  validateTelegramData(data: Record<string, string>): boolean {
+  /**
+   * Validate Telegram data based on the hash
+   * @param data - Telegram data
+   * @returns True if the data is valid
+   */
+  private validateTelegramData(data: TelegramDataDto): boolean {
     const { hash, ...dataCheck } = data;
     const dataCheckString = Object.keys(dataCheck)
       .sort()
@@ -30,20 +41,39 @@ export class AuthService {
     return hmac === hash;
   }
 
-  async validateTelegramLogin(data: Record<string, string>): Promise<string> {
+  /**
+   * Validate Telegram login data and return a JWT token
+   * @param data - Telegram login data
+   * @returns JWT token
+   */
+  async validateTelegramLogin(
+    data: TelegramDataDto,
+  ): Promise<AuthTokenSignedDto> {
     if (!this.validateTelegramData(data)) {
       throw new UnauthorizedException('Invalid Telegram data');
     }
 
-    const payload = {
-      id: data.id,
-      username: data.username,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      photo_url: data.photo_url,
-      auth_date: data.auth_date,
-    };
+    const user = await this.userService.upsertUser({
+      where: { telegramId: data.id },
+      create: {
+        telegramId: data.id,
+        picture: data.photo_url,
+        username: data.username,
+        role: Role.USER,
+      },
+      update: {
+        // update user pic and username in case they changed
+        picture: data.photo_url,
+        username: data.username,
+      },
+    });
 
-    return this.jwtService.signAsync(payload);
+    const payload = {
+      id: user.id,
+    } as AuthPayloadDto;
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 }

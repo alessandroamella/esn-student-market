@@ -8,7 +8,12 @@ import {
   WinstonModule,
 } from 'nest-winston';
 import { AuthModule } from './auth/auth.module';
-import * as winston from 'winston';
+import { FileModule } from './file/file.module';
+import { UserModule } from './user/user.module';
+import { ItemsModule } from './items/items.module';
+import winston from 'winston';
+import Joi from 'joi';
+import { TelegramBotModule } from 'telegram-bot/telegram-bot.module';
 
 @Module({
   imports: [
@@ -23,6 +28,7 @@ import * as winston from 'winston';
             nestWinstonModuleUtilities.format.nestLike('Backend', {
               colors: true,
               prettyPrint: true,
+              processId: true,
             }),
           ),
         }),
@@ -31,9 +37,25 @@ import * as winston from 'winston';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test', 'provision')
+          .default('development'),
+        PORT: Joi.number().port().default(3000),
+        JWT_SECRET: Joi.string().required(),
+        COOKIE_SECRET: Joi.string().required(),
+        AWS_ACCESS_KEY_ID: Joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        AWS_S3_BUCKET_NAME: Joi.string().required(),
+        TELEGRAM_BOT_TOKEN: Joi.string().required(),
+      }),
     }),
     PrismaModule,
     AuthModule,
+    FileModule,
+    UserModule,
+    ItemsModule,
+    TelegramBotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

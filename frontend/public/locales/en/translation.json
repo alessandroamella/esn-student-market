@@ -1,0 +1,18 @@
+{
+    "common": {},
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "signup": "Sign up"
+    },
+    "home": {
+        "hero": "Welcome to the student market!"
+    },
+    "legal": {
+        "tos": "Terms of Service",
+        "privacy": "Privacy Policy"
+    },
+    "navigation": {
+        "backToHome": "Back to home"
+    }
+}
