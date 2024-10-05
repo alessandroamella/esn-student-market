@@ -14,6 +14,7 @@ import { ItemsModule } from './items/items.module';
 import winston from 'winston';
 import Joi from 'joi';
 import { TelegramBotModule } from 'telegram-bot/telegram-bot.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { TelegramBotModule } from 'telegram-bot/telegram-bot.module';
     UserModule,
     ItemsModule,
     TelegramBotModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

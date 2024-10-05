@@ -16,6 +16,19 @@ export class UserService {
     this.addVutEmailConstraint();
   }
 
+  public privateUserSelect: Prisma.UserSelect = {
+    id: true,
+    email: true,
+    username: true,
+    picture: true,
+    role: true,
+  };
+  public publicUserSelect: Prisma.UserSelect = {
+    id: true,
+    username: true,
+    picture: true,
+  };
+
   private async addVutEmailConstraint() {
     await this.prisma.userRegistrationConstraint.upsert({
       create: {
@@ -40,7 +53,9 @@ export class UserService {
   /**
    * Throws BadRequestException if error occurs
    */
-  private async checkSatisfiesConstraints(user: CreateUserDto): Promise<void> {
+  private async checkSatisfiesConstraints(user: {
+    email: string;
+  }): Promise<void> {
     const constraints = await this.prisma.userRegistrationConstraint.findMany();
 
     for (const c of constraints) {
@@ -63,7 +78,7 @@ export class UserService {
     }
   }
 
-  async upsertUser(params: {
+  async upsert(params: {
     where: Prisma.UserWhereUniqueInput;
     create: CreateUserDto;
     update: UpdateUserDto;
@@ -73,6 +88,18 @@ export class UserService {
       where,
       create,
       update,
+    });
+  }
+
+  async create(createUserDto: Prisma.UserCreateInput): Promise<User> {
+    if (createUserDto.email) {
+      await this.checkSatisfiesConstraints({
+        email: createUserDto.email!,
+      });
+    }
+    return this.prisma.user.create({
+      data: createUserDto,
+      select: this.privateUserSelect,
     });
   }
 

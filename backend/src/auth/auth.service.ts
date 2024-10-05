@@ -6,7 +6,8 @@ import { TelegramDataDto } from './dto/telegram-data.dto';
 import { AuthTokenSignedDto } from './dto/auth-token-signed.dto';
 import { UserService } from 'user/user.service';
 import { AuthPayloadDto } from './dto/auth-payload.dto';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private jwtService: JwtService,
     private userService: UserService,
     private config: ConfigService,
+    private prisma: PrismaService,
   ) {
     this.botToken = this.config.get<string>('TELEGRAM_BOT_TOKEN');
   }
@@ -53,20 +55,33 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Telegram data');
     }
 
-    const user = await this.userService.upsertUser({
-      where: { telegramId: data.id },
-      create: {
+    const tgAuth = await this.prisma.telegramAuth.findUnique({
+      where: {
         telegramId: data.id,
-        picture: data.photo_url,
-        username: data.username,
-        role: Role.USER,
       },
-      update: {
-        // update user pic and username in case they changed
-        picture: data.photo_url,
-        username: data.username,
+      select: {
+        user: {
+          select: this.userService.publicUserSelect,
+        },
       },
     });
+
+    let user: User;
+    if (tgAuth) {
+      user = tgAuth.user;
+    } else {
+      user = await this.userService.create({
+        picture: data.photo_url,
+        username: data.username,
+        isActive: true,
+        role: Role.USER,
+        telegramAuth: {
+          create: {
+            telegramId: data.id,
+          },
+        },
+      });
+    }
 
     const payload = {
       id: user.id,

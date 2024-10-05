@@ -24,8 +24,8 @@ declare global {
 
 async function bootstrap() {
   const httpsOptions = {
-    key: fs.readFileSync(path.join(process.cwd(), './server.secret.key')),
-    cert: fs.readFileSync(path.join(process.cwd(), './server.secret.crt')),
+    key: fs.readFileSync(path.join(process.cwd(), './server.key')),
+    cert: fs.readFileSync(path.join(process.cwd(), './server.crt')),
   };
 
   const app = await NestFactory.create(AppModule, { httpsOptions });
@@ -62,7 +62,6 @@ async function bootstrap() {
         'logged-in',
       )
       .setVersion('1.0')
-      .addTag('esn')
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);

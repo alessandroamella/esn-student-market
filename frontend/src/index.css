@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+.bm-menu-wrap {
+    @apply top-0;
+}

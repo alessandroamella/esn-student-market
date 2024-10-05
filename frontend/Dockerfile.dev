@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+
+ARG NODE_VERSION=20.12.2
+FROM node:${NODE_VERSION}-alpine
+
+RUN npm install -g pnpm
+
+WORKDIR /usr/src/app
+
+# Copy package files first
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install
+
+# Copy the rest of the source files
+COPY . .
+
+# Expose the port
+EXPOSE 5173
+
+# Run the application with host setting
+CMD pnpm run dev --host

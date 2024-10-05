@@ -9,14 +9,6 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   username: string;
 
   @ApiProperty({
-    description: 'The Telegram ID of the user',
-    uniqueItems: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  telegramId: string;
-
-  @ApiProperty({
     description: 'The email address of the user',
     required: false,
   })
