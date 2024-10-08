@@ -13,13 +13,6 @@ export default defineConfig({
     },
   },
   preview: {
-    proxy: {
-      '/v1': {
-        target: 'https://localhost:7592',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
     https: false,
     port: 7593,
   },
