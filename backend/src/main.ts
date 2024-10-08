@@ -23,7 +23,7 @@ declare global {
 }
 
 async function bootstrap() {
-  const httpsOptions = {
+  const httpsOptions = process.env.USE_HTTPS === 'true' && {
     key: fs.readFileSync(path.join(process.cwd(), './server.key')),
     cert: fs.readFileSync(path.join(process.cwd(), './server.crt')),
   };
@@ -72,6 +72,11 @@ async function bootstrap() {
   app.use(cookieParser(cookieSecret));
 
   loggerService.info(`Server is running on port ${port}`);
+
+  if (process.env.USE_HTTPS === 'true') {
+    loggerService.info('Using HTTPS');
+  }
+
   await app.listen(port);
 }
 bootstrap();
