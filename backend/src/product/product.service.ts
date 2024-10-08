@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
+import { ReturnedUserDto } from 'user/user.dto';
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  private itemSelect: Prisma.ItemSelect = {
+  private itemSelect: Prisma.ProductSelect = {
     id: true,
     name: true,
     price: true,
@@ -26,8 +27,14 @@ export class ProductService {
     },
   };
 
+  async categoryExists(id: number) {
+    return this.prisma.category.findUnique({
+      where: { id },
+    });
+  }
+
   async create(userId: number, createProductDto: CreateProductDto) {
-    return this.prisma.item.create({
+    return this.prisma.product.create({
       data: {
         ...createProductDto,
         userId,
@@ -36,19 +43,24 @@ export class ProductService {
     });
   }
 
-  async findAll(skip?: number, take?: number, where?: any, orderBy?: any) {
-    return this.prisma.item.findMany({
+  async findAll(
+    user?: ReturnedUserDto,
+    skip?: number,
+    take?: number,
+    orderBy?: any,
+  ) {
+    return this.prisma.product.findMany({
       skip,
       take,
-      where,
+      where: user ? { onlyForRegistered: false } : undefined,
       orderBy,
       select: this.itemSelect,
     });
   }
 
-  async findOne(id: number) {
-    const product = await this.prisma.item.findUnique({
-      where: { id },
+  async findOne(id: number, user?: ReturnedUserDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id, onlyForRegistered: user ? false : undefined },
       select: this.itemSelect,
     });
 
@@ -59,20 +71,34 @@ export class ProductService {
     return product;
   }
 
-  async update(id: number, userId: number, updateProductDto: UpdateProductDto) {
-    const product = await this.prisma.item.findUnique({
+  private async canModifyProduct(id: number, userId: number) {
+    const product = await this.prisma.product.findUnique({
       where: { id },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
 
-    if (!product) {
+    if (
+      !product ||
+      (product.userId !== userId &&
+        !([Role.ESN, Role.OWNER] as Role[]).includes(product.user.role))
+    ) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    if (product.userId !== userId) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
+    return product;
+  }
 
-    return this.prisma.item.update({
+  async update(id: number, userId: number, updateProductDto: UpdateProductDto) {
+    await this.canModifyProduct(id, userId);
+
+    return this.prisma.product.update({
       where: { id },
       data: updateProductDto,
       select: this.itemSelect,
@@ -80,19 +106,9 @@ export class ProductService {
   }
 
   async remove(id: number, userId: number) {
-    const product = await this.prisma.item.findUnique({
-      where: { id },
-    });
+    await this.canModifyProduct(id, userId);
 
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
-
-    if (product.userId !== userId) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
-
-    return this.prisma.item.delete({
+    return this.prisma.product.delete({
       where: { id },
       select: this.itemSelect,
     });

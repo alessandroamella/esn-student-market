@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 .bm-menu-wrap {
-    @apply top-0;
+  @apply top-0;
 }

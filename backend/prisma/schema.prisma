@@ -17,35 +17,31 @@ enum Role {
 model User {
   id        Int      @id @default(autoincrement())
   username  String?  @unique
-  email     String?  @unique
   picture   String?
   role      Role     @default(USER)
-  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Auth relations - each can be null, user must have at least one
-  emailAuth    EmailAuth?
+  localAuth    LocalAuth?
   telegramAuth TelegramAuth?
   googleAuth   GoogleAuth?
   githubAuth   GithubAuth?
 
   // App relations
-  items Item[]
+  products Product[]
 }
 
 // For username/password authentication
-model EmailAuth {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
-  passwordHash String
-  verified     Boolean   @default(false)
-  verifyToken  String? // For email verification
-  tokenExpiry  DateTime?
+model LocalAuth {
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
+  hashedPwd   String
+  verified    Boolean @default(false)
+  verifyToken String? // JWT token with email, expiration attached
 
   // Recovery/reset related
-  resetToken  String?
-  resetExpiry DateTime?
+  resetToken String? // Also JWT token
 
   // Relation
   userId    Int      @unique
@@ -98,43 +94,40 @@ model GithubAuth {
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  items       Item[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
 }
 
-model Item {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  images      String[]
-  userId      Int
-  categoryId  Int
-  validUntil  DateTime
-  sold        Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Product {
+  id                Int      @id @default(autoincrement())
+  name              String
+  description       String?
+  price             Float
+  images            String[]
+  userId            Int
+  categoryId        Int
+  validUntil        DateTime
+  sold              Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  onlyForRegistered Boolean  @default(false)
 
-  user     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id])
 }
 
 enum Constraints {
   EMAIL_ENDS_WITH
-  DOMAIN_RESTRICTION
-  USERNAME_PATTERN
 }
 
 model UserRegistrationConstraint {
   constraint     Constraints
   field          String
   acceptedValues String[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
 
   @@id([constraint, field])
 }

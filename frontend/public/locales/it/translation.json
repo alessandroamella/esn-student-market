@@ -1,5 +1,32 @@
 {
   "common": {
     "error": "Errore"
+  },
+  "auth": {
+    "login": {
+      "title": "Accedi",
+      "description": "Accedi al tuo account",
+      "submit": "Accedi"
+    },
+    "signup": {
+      "title": "Registrati",
+      "description": "Crea un nuovo account",
+      "submit": "Registrati"
+    },
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Hai dimenticato la password?",
+    "noAccount": "Non hai un account?",
+    "logout": "Esci"
+  },
+  "home": {
+    "hero": "Benvenuto nel mercato degli studenti!"
+  },
+  "legal": {
+    "tos": "Termini di Servizio",
+    "privacy": "Informativa sulla Privacy"
+  },
+  "navigation": {
+    "backToHome": "Torna alla home"
   }
 }

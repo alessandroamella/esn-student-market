@@ -5,8 +5,15 @@ const colors = require('tailwindcss/colors');
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      fontSize: {
+        navbar: '13px',
+      },
+    },
     colors: {
+      esngray: '#aaa',
+      esnblue: '#00aef0',
+      esndarkblue: '#0099d4',
       transparent: 'transparent',
       current: 'currentColor',
       black: colors.black,
@@ -35,11 +42,5 @@ export default {
     },
   },
   plugins: [],
-  safelist: [
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-orange-500',
-    'bg-green-500',
-    'bg-dark-blue-500',
-  ],
+  safelist: [],
 };

@@ -2,6 +2,8 @@ import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { slide as Menu } from 'react-burger-menu';
+import Button from '../components/Button';
+import useDialog from '../stores/dialog';
 
 interface MenuItemType {
   href: string;
@@ -26,7 +28,7 @@ const HeaderElem: FC<HeaderElemProps> = ({ title, to, subItems }) => {
     <li className="flex relative group">
       <Link
         to={to}
-        className="flex items-center px-4 py-3 rounded-lg transition-colors -mb-1 border-b-2 border-transparent hover:text-black hover:bg-gray-50 dark:text-fuchsia-600"
+        className="text-esngray inline-block py-0 px-3 font-bold uppercase text-navbar leading-7 hover:bg-esnblue hover:text-white transition-colors rounded-lg"
       >
         {title}
       </Link>
@@ -60,6 +62,8 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
     setIsMobileMenuOpen(false);
   };
 
+  const { openDialog } = useDialog();
+
   return (
     <header className="p-4 dark:bg-gray-100 dark:text-gray-800 border-b-2 border-gray-100 shadow-md relative z-50">
       <div className="container md:px-12 lg:px-24 flex justify-between h-16 mx-auto">
@@ -77,7 +81,7 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
               />
             )}
             {siteName && (
-              <span className="text-xl xl:text-2xl font-bold text-gray-800 ml-2">
+              <span className="text-xl xl:text-2xl font-bold text-gray-700 hover:text-gray-800 ml-2">
                 {siteName}
               </span>
             )}
@@ -97,12 +101,9 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
             ))}
           </ul>
           <div className="ml-6">
-            <button
-              type="button"
-              className="px-8 py-3 font-semibold border hover:bg-gray-50 focus:bg-gray-100 transition-colors rounded dark:border-gray-800 dark:text-gray-800"
-            >
-              {t('auth.login')}
-            </button>
+            <Button onClick={() => openDialog('login')}>
+              {t('auth.login.title')}
+            </Button>
           </div>
         </nav>
 
@@ -162,13 +163,13 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
                   </li>
                 ))}
                 <li className="pt-4">
-                  <button
+                  <Button
                     type="button"
                     className="w-full px-8 py-3 font-semibold border border-white text-white hover:bg-white hover:text-gray-800 transition-colors rounded"
                     onClick={closeMobileMenu}
                   >
-                    {t('auth.login')}
-                  </button>
+                    {t('auth.login.title')}
+                  </Button>
                 </li>
               </ul>
             </nav>

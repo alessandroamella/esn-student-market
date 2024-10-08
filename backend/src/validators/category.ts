@@ -4,22 +4,22 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { ItemsService } from 'items/items.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { ProductService } from 'product/product.service';
 import { Logger } from 'winston';
 
 @ValidatorConstraint({ name: 'isValidCategory', async: true })
 @Injectable()
 class IsValidCategory implements ValidatorConstraintInterface {
   constructor(
-    private readonly itemsService: ItemsService,
+    private readonly productService: ProductService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
   async validate(value: unknown) {
     return (
       typeof value === 'number' &&
-      !!(await this.itemsService.categoryExists(value))
+      !!(await this.productService.categoryExists(value))
     );
   }
 

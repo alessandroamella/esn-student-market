@@ -3,9 +3,21 @@
     "error": "Error"
   },
   "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "signup": "Sign up"
+    "login": {
+      "title": "Login",
+      "description": "Login to your account",
+      "submit": "Login"
+    },
+    "signup": {
+      "title": "Sign up",
+      "description": "Create a new account",
+      "submit": "Sign up"
+    },
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "logout": "Logout"
   },
   "home": {
     "hero": "Welcome to the student market!"

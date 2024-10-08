@@ -7,12 +7,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { AuthPayloadDto } from './dto/auth-payload.dto';
+import { UserService } from 'user/user.service';
+import { AuthPayloadDto } from './auth.dto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
+    private userService: UserService,
     private config: ConfigService,
   ) {}
 
@@ -28,7 +30,12 @@ export class AuthGuard implements CanActivate {
       })) as AuthPayloadDto;
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
-      request.userId = payload.id;
+      const user = await this.userService.findOne({ id: payload.id });
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+      request.userId = user.id;
+      request.user = user;
     } catch {
       throw new UnauthorizedException();
     }

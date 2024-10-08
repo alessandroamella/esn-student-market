@@ -10,7 +10,6 @@ import {
 import { AuthModule } from './auth/auth.module';
 import { FileModule } from './file/file.module';
 import { UserModule } from './user/user.module';
-import { ItemsModule } from './items/items.module';
 import winston from 'winston';
 import Joi from 'joi';
 import { TelegramBotModule } from 'telegram-bot/telegram-bot.module';
@@ -49,13 +48,13 @@ import { ProductModule } from './product/product.module';
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_S3_BUCKET_NAME: Joi.string().required(),
         TELEGRAM_BOT_TOKEN: Joi.string().required(),
+        ENABLE_TELEGRAM_LOGIN: Joi.boolean().required(),
       }),
     }),
     PrismaModule,
     AuthModule,
     FileModule,
     UserModule,
-    ItemsModule,
     TelegramBotModule,
     ProductModule,
   ],

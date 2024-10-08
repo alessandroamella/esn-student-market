@@ -1,28 +1,29 @@
 import { ButtonHTMLAttributes, FC } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  color?: 'blue' | 'purple' | 'orange' | 'green' | 'dark-blue';
-  size?: 'small' | 'medium' | 'large';
+  variant?: 'primary' | 'secondary';
+  className?: string;
 }
 
 const Button: FC<ButtonProps> = ({
+  type = 'button',
+  variant = 'primary',
+  className = '',
   children,
-  onClick,
-  color = 'blue',
-  size = 'medium',
+  ...props
 }) => {
-  const colorClass = `bg-${color}-500 hover:bg-${color}-700`;
-  const sizeClass =
-    size === 'small'
-      ? 'text-sm px-2 py-1'
-      : size === 'large'
-      ? 'text-lg px-4 py-2'
-      : 'text-base px-3 py-1.5';
+  const baseStyles = `px-8 py-3 font-semibold transition-colors rounded`;
+  const variants = {
+    primary: 'bg-esnblue hover:bg-esndarkblue text-white dark:text-gray-800',
+    secondary:
+      'bg-white text-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:text-white',
+  };
 
   return (
     <button
-      className={`text-white font-bold rounded ${colorClass} ${sizeClass}`}
-      onClick={onClick}
+      type={type}
+      className={`${baseStyles} ${variants[variant]} ${className}`}
+      {...props}
     >
       {children}
     </button>

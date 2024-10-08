@@ -1,11 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { User, Prisma, Constraints } from '@prisma/client';
+import { User, Prisma, Constraints, LocalAuth } from '@prisma/client';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'prisma/prisma.service';
 import { Logger } from 'winston';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { NullableType } from 'joi';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -18,10 +17,15 @@ export class UserService {
 
   public privateUserSelect: Prisma.UserSelect = {
     id: true,
-    email: true,
     username: true,
     picture: true,
     role: true,
+    localAuth: {
+      select: {
+        email: true,
+        verified: true,
+      },
+    },
   };
   public publicUserSelect: Prisma.UserSelect = {
     id: true,
@@ -92,9 +96,9 @@ export class UserService {
   }
 
   async create(createUserDto: Prisma.UserCreateInput): Promise<User> {
-    if (createUserDto.email) {
+    if (createUserDto.localAuth.create.email) {
       await this.checkSatisfiesConstraints({
-        email: createUserDto.email!,
+        email: createUserDto.localAuth.create.email,
       });
     }
     return this.prisma.user.create({
@@ -109,7 +113,7 @@ export class UserService {
   ): Promise<NullableType<User>> {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
-      select,
+      select: select ?? this.privateUserSelect,
     });
   }
 }

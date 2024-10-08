@@ -8,16 +8,22 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { ProductService } from './product.service';
 import tryToParseJson from 'try-json-parse';
+import { User } from 'user/user.decorator';
+import { ReturnedUserDto } from 'user/user.dto';
+import { AuthGuard } from 'auth/auth.guard';
 
 @ApiTags('product')
 @Controller('product')
@@ -29,10 +35,13 @@ export class ProductController {
   @ApiCreatedResponse({
     description: 'The product has been successfully created.',
   })
-  async create(@Body() createProductDto: CreateProductDto) {
-    // TODO: Get userId from auth
-    const userId = 1; // Temporary
-    return this.productService.create(userId, createProductDto);
+  @ApiBearerAuth('logged-in')
+  @UseGuards(AuthGuard)
+  async create(
+    @User() user: ReturnedUserDto,
+    @Body() createProductDto: CreateProductDto,
+  ) {
+    return this.productService.create(user.id, createProductDto);
   }
 
   @Get()
@@ -42,16 +51,21 @@ export class ProductController {
     @Query('skip', ParseIntPipe) skip?: number,
     @Query('take', ParseIntPipe) take?: number,
     @Query('orderBy') orderBy?: string,
+    @User() user?: ReturnedUserDto | undefined,
   ) {
     const orderByObj = orderBy ? tryToParseJson(orderBy) : undefined;
-    return this.productService.findAll(skip, take, undefined, orderByObj);
+    return this.productService.findAll(user, skip, take, orderByObj);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a product by id' })
-  @ApiOkResponse({ description: 'Return the product.' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.productService.findOne(id);
+  @ApiOkResponse({ description: 'The product' })
+  @ApiNotFoundResponse({ description: 'Product not found' })
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @User() user?: ReturnedUserDto | undefined,
+  ) {
+    return this.productService.findOne(id, user);
   }
 
   @Patch(':id')
@@ -59,13 +73,17 @@ export class ProductController {
   @ApiOkResponse({
     description: 'The product has been successfully updated.',
   })
+  @ApiNotFoundResponse({
+    description: 'Product not found or insufficient permissions.',
+  })
+  @ApiBearerAuth('logged-in')
+  @UseGuards(AuthGuard)
   async update(
+    @User() user: ReturnedUserDto,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    // TODO: Get userId from auth
-    const userId = 1; // Temporary
-    return this.productService.update(id, userId, updateProductDto);
+    return this.productService.update(id, user.id, updateProductDto);
   }
 
   @Delete(':id')
@@ -73,9 +91,15 @@ export class ProductController {
   @ApiOkResponse({
     description: 'The product has been successfully deleted.',
   })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    // TODO: Get userId from auth
-    const userId = 1; // Temporary
-    return this.productService.remove(id, userId);
+  @ApiNotFoundResponse({
+    description: 'Product not found or insufficient permissions.',
+  })
+  @ApiBearerAuth('logged-in')
+  @UseGuards(AuthGuard)
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @User() user: ReturnedUserDto,
+  ) {
+    return this.productService.remove(id, user.id);
   }
 }
