@@ -71,7 +71,7 @@ class ESNMarketApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: 'https://localhost:5000/v1',
+      baseURL: '/v1',
       headers: {
         'Content-Type': 'application/json',
       },
