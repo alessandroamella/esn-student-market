@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { slide as Menu } from 'react-burger-menu';
 import Button from '../components/Button';
 import useDialog from '../stores/dialog';
+import useAuth from '../stores/auth';
 
 interface MenuItemType {
   href: string;
@@ -54,6 +55,8 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
   const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const { user } = useAuth();
+
   const handleStateChange = (state: { isOpen: boolean }) => {
     setIsMobileMenuOpen(state.isOpen);
   };
@@ -101,9 +104,13 @@ const Header: FC<HeaderProps> = ({ logoSrc, siteName, menuItems }) => {
             ))}
           </ul>
           <div className="ml-6">
-            <Button onClick={() => openDialog('login')}>
-              {t('auth.login.title')}
-            </Button>
+            {user ? (
+              <p>{t('auth.welcome', { name: user.username })}</p>
+            ) : (
+              <Button onClick={() => openDialog('login')}>
+                {t('auth.login.title')}
+              </Button>
+            )}
           </div>
         </nav>
 

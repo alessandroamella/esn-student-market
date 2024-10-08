@@ -17,7 +17,8 @@
     "password": "Password",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
-    "logout": "Logout"
+    "logout": "Logout",
+    "welcome": "Welcome, {{name}}!"
   },
   "home": {
     "hero": "Welcome to the student market!"

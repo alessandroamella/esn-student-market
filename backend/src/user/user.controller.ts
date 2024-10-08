@@ -14,7 +14,7 @@ import {
 @ApiTags('user')
 @ApiBearerAuth('logged-in')
 export class UserController {
-  @Get('profile')
+  @Get('me')
   @ApiOkResponse({
     description: 'Returns the profile of the user',
     type: ReturnedUserDto,

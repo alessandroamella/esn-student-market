@@ -18,4 +18,10 @@ const useAuth = create<AuthStore>((set) => ({
     const { data } = await api.signUp(user);
     set({ token: data.access_token });
   },
+  getProfile: async () => {
+    const { data } = await api.getProfile();
+    set({ user: data });
+  },
 }));
+
+export default useAuth;

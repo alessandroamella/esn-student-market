@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import useDialog, { AppDialogs } from '../../stores/dialog';
 

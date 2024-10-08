@@ -40,11 +40,7 @@ const JustLaunched = () => {
         {/*  More News Items */}
       </Block>
 
-      <Button
-        color="purple"
-        size="large"
-        onClick={() => alert('Button clicked!')}
-      >
+      <Button color="purple" onClick={() => alert('To be implemented')}>
         Click me
       </Button>
     </div>

@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import useAuth from '../stores/auth';
 
 // Types
 export interface TelegramDataDto {
@@ -74,11 +75,12 @@ class ESNMarketApiService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true,
     });
 
     // Add request interceptor to set authorization header
     this.api.interceptors.request.use((config) => {
-      const token = localStorage.getItem('access_token');
+      const { token } = useAuth();
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
       }
@@ -147,6 +149,15 @@ class ESNMarketApiService {
         '/auth/signup',
         signUpData,
       );
+      return this.handleResponse(response);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getProfile(): Promise<ApiResponse<ReturnedUser>> {
+    try {
+      const response = await this.api.get<ReturnedUser>('/user/me');
       return this.handleResponse(response);
     } catch (error) {
       throw this.handleError(error);
