@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { User, Prisma, Constraints, LocalAuth } from '@prisma/client';
+import { Prisma, Constraints, User } from '@prisma/client';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'prisma/prisma.service';
 import { Logger } from 'winston';

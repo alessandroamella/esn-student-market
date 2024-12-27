@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import crypto from 'node:crypto';
 import { TelegramDataDto } from './telegram/telegram.dto';
 import { UserService } from 'user/user.service';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { AuthTokenSignedDto, AuthPayloadDto } from './auth.dto';
 import { LoginUserDto, SignUpUserDto } from './local/local.dto';
@@ -42,7 +42,7 @@ export class AuthService {
       this.logger.error(
         'ENABLE_TELEGRAM_LOGIN is true but Telegram bot token is not set',
       );
-      process.exit(1);
+      throw new Error('Telegram bot token is not set');
     }
 
     this.logger.info('Telegram login is enabled');
@@ -102,21 +102,18 @@ export class AuthService {
       },
     });
 
-    let user: User;
-    if (tgAuth) {
-      user = tgAuth.user;
-    } else {
-      user = await this.userService.create({
-        picture: data.photo_url,
-        username: data.username,
-        role: Role.USER,
-        telegramAuth: {
-          create: {
-            telegramId: data.id,
+    const user = tgAuth
+      ? tgAuth.user
+      : await this.userService.create({
+          picture: data.photo_url,
+          username: data.username,
+          role: Role.USER,
+          telegramAuth: {
+            create: {
+              telegramId: data.id,
+            },
           },
-        },
-      });
-    }
+        });
 
     return this.returnToken(user);
   }
@@ -198,11 +195,11 @@ export class AuthService {
         token,
       );
       if (!_email) {
-        throw new Error();
+        throw new Error('Invalid token');
       }
 
       email = _email;
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid token');
     }
 

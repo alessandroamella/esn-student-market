@@ -46,7 +46,7 @@ export interface CreateProductDto {
   validUntil: string;
 }
 
-export interface UpdateProductDto extends Partial<CreateProductDto> {}
+export type UpdateProductDto = Partial<CreateProductDto>;
 
 export interface ProductDto extends CreateProductDto {
   id: number;
